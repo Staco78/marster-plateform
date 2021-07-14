@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/game/index.ts',
+    entry: './src/renderer/index.ts',
     target: 'electron-renderer',
     resolve: {
         alias: {
@@ -26,7 +26,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/game/index.html'
+            template: './src/renderer/index.html'
         })
     ]
 };

@@ -1,5 +1,7 @@
 import * as PIXI from "pixi.js";
-import { join as pathJoin } from "path";
+
+import Game from "./game/game";
+import loadAll from "./utils/ressourceLoader";
 
 const app = new PIXI.Application({ width: 256, height: 256 });
 
@@ -9,6 +11,6 @@ app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
 app.renderer.resize(window.innerWidth, window.innerHeight);
 
-let player = new PIXI.Sprite(PIXI.Texture.from(pathJoin(__dirname, "../static/player.png")));
-
-app.stage.addChild(player);
+loadAll(() => {
+	new Game(app).start();
+});

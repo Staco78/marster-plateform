@@ -19,5 +19,8 @@ app.on("ready", () => {
 });
 
 app.on("window-all-closed", () => {
+	process.argv;
 	app.quit();
 });
+
+
