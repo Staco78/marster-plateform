@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import inputManager from "../utils/inputManager";
+import inputManager from "../common/inputManager";
 
 const speed = 10;
 

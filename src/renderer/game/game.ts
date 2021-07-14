@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import Player from "../player/player";
-import inputManager from "../utils/inputManager";
+import inputManager from "../common/inputManager";
 
 export default class Game {
 	private app: PIXI.Application;
