@@ -1,0 +1,19 @@
+{
+    "name": "master_plateform",
+    "authors": "Staco",
+    "version": "1.0.0",
+    "main": "dist/main/index.js",
+    "dependencies": {
+        "electron": "^13.1.6",
+        "nodemon": "^2.0.12",
+        "pixi.js": "^6.0.4"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "typescript": "^4.3.5"
+    }
+}
