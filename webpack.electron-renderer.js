@@ -5,6 +5,9 @@ module.exports = {
     mode: 'development',
     entry: './src/renderer/index.ts',
     target: 'electron-renderer',
+    experiments: {
+        asset: true
+    },
     resolve: {
         alias: {
             ['@']: path.resolve(__dirname, 'src')
@@ -14,10 +17,15 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.png$/,
+                include: /src/,
+                type: "asset"
+            },
+            {
                 test: /\.ts$/,
                 include: /src/,
                 use: [{ loader: 'ts-loader' }]
-            }
+            },
         ]
     },
     output: {

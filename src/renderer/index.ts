@@ -11,6 +11,9 @@ app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
 app.renderer.resize(window.innerWidth, window.innerHeight);
 
+window.onresize = () => app.renderer.resize(window.innerWidth, window.innerHeight);
+
 loadAll(() => {
-	new Game(app).start();
+	const game = new Game(app);
+	game.start();
 });
