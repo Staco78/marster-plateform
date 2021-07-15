@@ -1,18 +1,33 @@
 import * as PIXI from "pixi.js";
-import BLock from "../blocks/block";
+import { renderDistance } from "../common/constants";
 import Player from "../player/player";
+import Chunk from "./chunk";
 
 export default class World {
-
 	player: Player = new Player(this);
 
-	constructor() {}
+	private chunks = new Map<Number, Chunk>();
+	private stage: PIXI.Container;
 
-	draw(stage: PIXI.Container) {
-		for (let x = 0; x < 100; x++) {
-			// for (let y = 0; y < 100; y++) {
-				stage.addChild(new BLock(new PIXI.Point(x, 0)).sprite);
-			// }
+	constructor(stage: PIXI.Container) {
+		this.stage = stage;
+
+		this.player.on("moved", () => this.handlePlayerMoved());
+	}
+
+	draw() {
+		// this.chunks.forEach(chunk => chunk.draw(this.stage));
+	}
+
+	private handlePlayerMoved() {
+		this.calcRenderDistance();
+	}
+
+	calcRenderDistance() {
+		for (let i = this.player.actualChunk - renderDistance; i <= this.player.actualChunk + renderDistance; i++) {
+			if (!this.chunks.get(i)) this.chunks.set(i, new Chunk(this.stage, i));
 		}
+
+		this.draw();
 	}
 }

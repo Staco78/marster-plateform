@@ -11,11 +11,11 @@ function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { w
 export default class Game {
 	private app: PIXI.Application;
 
-	private world: World = new World();
-	private player: Player = this.world.player;
-
 	private playerCenteredContainer = new PIXI.Container();
 	private staticContainer = new PIXI.Container();
+
+	private world: World = new World(this.playerCenteredContainer);
+	private player: Player = this.world.player;
 
 	constructor(app: PIXI.Application) {
 		this.app = app;
@@ -36,10 +36,16 @@ export default class Game {
 		this.app.stage.addChild(this.staticContainer);
 
 		this.playerCenteredContainer.addChild(this.player);
-		this.world.draw(this.playerCenteredContainer);
+		this.world.draw();
 
 		let FPSText = new PIXI.Text("");
 		this.staticContainer.addChild(FPSText);
+
+		let playerChunkText = new PIXI.Text("");
+		playerChunkText.y = 30;
+		this.staticContainer.addChild(playerChunkText);
+
+		this.world.calcRenderDistance();
 
 		// game loop
 		this.app.ticker.add(delta => {
@@ -54,6 +60,7 @@ export default class Game {
 
 			FPSText.text = this.app.ticker.FPS.toFixed();
 
+			playerChunkText.text = this.player.actualChunk.toString();
 		}, 100);
 	}
 }
