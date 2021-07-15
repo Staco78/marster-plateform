@@ -9,9 +9,7 @@ document.getElementById("container")?.appendChild(app.view);
 
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
-app.renderer.resize(window.innerWidth, window.innerHeight);
 
-window.onresize = () => app.renderer.resize(window.innerWidth, window.innerHeight);
 
 loadAll(() => {
 	const game = new Game(app);
