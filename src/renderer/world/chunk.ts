@@ -1,9 +1,10 @@
 import * as PIXI from "pixi.js";
 import Block from "../blocks/block";
 import { blockSize } from "../common/constants";
+import Generation from "../generation/generation";
 
 export default class Chunk {
-	readonly blocks = new Map<PIXI.Point, Block>();
+	readonly blocks = new BlockMap();
 	private container = new PIXI.Container();
 
 	pos: number;
@@ -33,7 +34,31 @@ export default class Chunk {
 	}
 
 	generate() {
-		for (let x = 0; x < 16; x++) for (let y = 0; y < 32; y++) this.setBlock(new PIXI.Point(x, y), new Block(new PIXI.Point(x, y)));
+		// for (let x = 0; x < 16; x++) for (let y = 0; y < 32; y++) this.setBlock(new PIXI.Point(x, y), new Block(new PIXI.Point(x, y)));
+		Generation.generateChunk(this);
+	}
+}
+
+class BlockMap {
+	private data = new Map<String, Block>();
+
+	private hash(key: PIXI.Point) {
+		return `${key.x} ${key.y}`;
 	}
 
+	set(key: PIXI.Point, block: Block) {
+		this.data.set(this.hash(key), block);
+	}
+
+	has(key: PIXI.Point): boolean {
+		return this.data.has(this.hash(key));
+	}
+
+	get(key: PIXI.Point) {
+		return this.data.get(this.hash(key));
+	}
+
+	forEach(callback: (block: Block) => void, thisArg?: any){
+		this.data.forEach(callback, thisArg);
+	}
 }

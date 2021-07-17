@@ -1,7 +1,10 @@
 import * as PIXI from "pixi.js";
+
+import Random from "../common/random";
 import Player from "../player/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
+import Generation from "../generation/generation";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
 	app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -26,7 +29,12 @@ export default class Game {
 
 		window.onresize = () => appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
 
+		Random.init(Date.now().toString());
+
 		inputManager.init();
+
+		Generation.init();
+
 	}
 
 	start() {
@@ -51,6 +59,7 @@ export default class Game {
 
 
 		this.world.calcRenderDistance();
+
 
 		// game loop
 		this.app.ticker.add(delta => {

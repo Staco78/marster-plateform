@@ -1,13 +1,14 @@
 import * as PIXI from "pixi.js";
 import inputManager from "../common/inputManager";
-import { blockSize, gravity, jumpStrenght, maxFallSpeed, playerSize, playerSpeed } from "../common/constants";
+import { blockSize, collisionDetectionDistance, gravity, jumpStrenght, maxFallSpeed, playerSize, playerSpeed } from "../common/constants";
 import World from "../world/world";
-import Chunk from "../world/chunk";
 
 export default class Player extends PIXI.Sprite {
-	pos: PIXI.Point = new PIXI.Point(0, 15);
+	pos: PIXI.Point = new PIXI.Point(0, 60);
 
 	private world: World;
+
+	private isNoClip = true;
 
 	readonly speed = new PIXI.Point(0, 0);
 
@@ -26,6 +27,8 @@ export default class Player extends PIXI.Sprite {
 		this.height = playerSize.height;
 
 		inputManager.on(" ", () => this.handleSpace());
+
+		inputManager.on("n", () => (this.isNoClip = !this.isNoClip));
 	}
 
 	private handleSpace() {
@@ -43,24 +46,25 @@ export default class Player extends PIXI.Sprite {
 
 		if (inputManager.isPressed("q")) this.speed.x -= playerSpeed;
 
-		if (inputManager.isPressed("t")) this.pos.set(0, 10);
-
-		// if (inputManager.isPressed(" ")) {
-		// 	this.speed.y += playerSpeed;
-		// }
-		// if (inputManager.isPressed("Shift")) {
-		// 	this.speed.y -= playerSpeed;
-		// }
+		if (this.isNoClip) {
+			if (inputManager.isPressed("z")) {
+				this.pos.y += playerSpeed * delta;
+			}
+			if (inputManager.isPressed("s")) {
+				this.pos.y -= playerSpeed * delta;
+			}
+		}
 
 		// gravity
-		this.speed.y += Math.max(-gravity * delta, -maxFallSpeed);
-
-		this.calcCollision(delta);
+		if (!this.isNoClip) this.speed.y += Math.max(-gravity * delta, -maxFallSpeed);
 
 		if (!this.speed.equals({ x: 0, y: 0 })) {
+			this.calcCollision(delta);
 			this.move(delta);
 			this.emit("move");
 		}
+
+		if (this.isNoClip) this.speed.set(0);
 
 		this.actualChunk = Math.floor(this.pos.x / 16);
 
@@ -69,31 +73,46 @@ export default class Player extends PIXI.Sprite {
 	}
 
 	private calcCollision(delta: number) {
+		if (this.isNoClip) return;
+
 		let testPos = this.pos.clone();
 		testPos.x += this.speed.x * delta;
 		testPos.y += this.speed.y * delta;
 
-		this.world.chunks.forEach(chunk => {
-			chunk.blocks.forEach(block => {
-				let blockRect = new PIXI.Rectangle(block.pos.x + chunk.pos * 16, block.pos.y, 1, 1);
+		let a = 0;
 
-				// colision X
-				if (this.testCollisionAABB(new PIXI.Rectangle(testPos.x, this.pos.y, 1, 2), blockRect)) {
-					let rightToLeft = Math.abs(this.pos.x + this.width / blockSize.width - blockRect.x) / delta;
-					let leftToRight = (blockRect.x + blockRect.width - this.pos.x) / delta;
+		for (let x = Math.round(this.pos.x) - collisionDetectionDistance; x <= Math.round(this.pos.x) + collisionDetectionDistance; x++) {
+			for (let y = Math.round(this.pos.y) - collisionDetectionDistance; y <= Math.round(this.pos.y) + collisionDetectionDistance; y++) {
+				let block = this.world.getBlock(new PIXI.Point(x, y));
+				// console.log(x + " " + y);
 
-					this.speed.x = Math.min(rightToLeft, leftToRight);
+				
+				if (block) {
+					// if (x < 0) alert(block)
+					// block.filters = [new PIXI.filters.BlurFilter(100)];
+
+					let blockRect = new PIXI.Rectangle(x, y, 1, 1);
+					a++;
+
+					// colision X
+					if (this.testCollisionAABB(new PIXI.Rectangle(testPos.x, this.pos.y, 1, 2), blockRect)) {
+						let rightToLeft = Math.abs(this.pos.x + this.width / blockSize.width - blockRect.x) / delta;
+						let leftToRight = (blockRect.x + blockRect.width - this.pos.x) / delta;
+
+						this.speed.x = Math.min(rightToLeft, leftToRight);
+					}
+
+					// colision Y
+					if (this.testCollisionAABB(new PIXI.Rectangle(this.pos.x, testPos.y, 1, 2), blockRect)) {
+						let topToBottom = Math.abs(this.pos.y + this.height / blockSize.height - blockRect.y) / delta;
+						let bottomToTop = (blockRect.y + blockRect.height - this.pos.y) / delta;
+
+						this.speed.y = Math.min(topToBottom, bottomToTop);
+					}
 				}
-
-				// colision Y
-				if (this.testCollisionAABB(new PIXI.Rectangle(this.pos.x, testPos.y, 1, 2), blockRect)) {
-					let topToBottom = Math.abs(this.pos.y + this.height / blockSize.height - blockRect.y) / delta;
-					let bottomToTop = (blockRect.y + blockRect.height - this.pos.y) / delta;
-
-					this.speed.y = Math.min(topToBottom, bottomToTop);
-				}
-			});
-		});
+			}
+		}
+		console.log(a);
 	}
 
 	private move(delta: number) {
