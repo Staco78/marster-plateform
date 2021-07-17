@@ -79,8 +79,6 @@ export default class Player extends PIXI.Sprite {
 		testPos.x += this.speed.x * delta;
 		testPos.y += this.speed.y * delta;
 
-		let a = 0;
-
 		for (let x = Math.round(this.pos.x) - collisionDetectionDistance; x <= Math.round(this.pos.x) + collisionDetectionDistance; x++) {
 			for (let y = Math.round(this.pos.y) - collisionDetectionDistance; y <= Math.round(this.pos.y) + collisionDetectionDistance; y++) {
 				let block = this.world.getBlock(new PIXI.Point(x, y));
@@ -92,7 +90,6 @@ export default class Player extends PIXI.Sprite {
 					// block.filters = [new PIXI.filters.BlurFilter(100)];
 
 					let blockRect = new PIXI.Rectangle(x, y, 1, 1);
-					a++;
 
 					// colision X
 					if (this.testCollisionAABB(new PIXI.Rectangle(testPos.x, this.pos.y, 1, 2), blockRect)) {
@@ -112,7 +109,6 @@ export default class Player extends PIXI.Sprite {
 				}
 			}
 		}
-		console.log(a);
 	}
 
 	private move(delta: number) {

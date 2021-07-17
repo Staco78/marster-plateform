@@ -5,7 +5,7 @@ import Generation from "../generation/generation";
 
 export default class Chunk {
 	readonly blocks = new BlockMap();
-	private container = new PIXI.Container();
+	readonly container = new PIXI.Container();
 
 	pos: number;
 
@@ -28,6 +28,7 @@ export default class Chunk {
 	}
 
 	setBlock(pos: PIXI.Point, block: Block) {
+		block.setPos(pos);
 		this.blocks.set(pos, block);
 
 		this.drawOneBlock(block);

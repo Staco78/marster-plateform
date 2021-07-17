@@ -1,5 +1,8 @@
 import * as PIXI from "pixi.js";
 import Block from "../blocks/block";
+import Dirt from "../blocks/dirt";
+import Grass from "../blocks/grass";
+import Stone from "../blocks/stone";
 import Random from "../common/random";
 import Chunk from "../world/chunk";
 
@@ -75,8 +78,21 @@ export default class Generation {
 
 			let y = Math.round((noise + 1) * 40);
 
+			chunk.setBlock(new PIXI.Point(x, y), new Grass());
+			y--;
+
+			chunk.setBlock(new PIXI.Point(x, y), new Dirt());
+			y--;
+
+			chunk.setBlock(new PIXI.Point(x, y), new Dirt());
+			y--;
+
+			chunk.setBlock(new PIXI.Point(x, y), new Dirt());
+			y--;
+			
+
 			for (; y >= 0; y--) {
-				chunk.setBlock(new PIXI.Point(x, y), new Block(new PIXI.Point(x, y)));
+				chunk.setBlock(new PIXI.Point(x, y), new Stone());
 			}
 		}
 	}

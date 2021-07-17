@@ -30,13 +30,14 @@ export default class World {
 		}
 
 		this.chunks.forEach((chunk, pos) => {
-			if (pos < this.player.actualChunk - renderDistance && pos > this.player.actualChunk + renderDistance) {
+			if (pos < this.player.actualChunk - renderDistance || pos > this.player.actualChunk + renderDistance) {
 				this.chunks.delete(pos);
+				this.stage.removeChild(chunk.container);
 			}
 		});
 	}
 
-	setBlock(pos: PIXI.Point) {
+	setBlock(pos: PIXI.Point, block: Block) {
 		let chunkPos = Math.floor(pos.x / 16);
 		let blockPos = new PIXI.Point(pos.x % 16, pos.y);
 		if (!this.chunks.has(chunkPos)) {
@@ -44,7 +45,7 @@ export default class World {
 			chunk.generate();
 			this.chunks.set(chunkPos, chunk);
 		}
-		(this.chunks.get(chunkPos) as Chunk).setBlock(blockPos, new Block(blockPos));
+		(this.chunks.get(chunkPos) as Chunk).setBlock(blockPos, block);
 	}
 
 	getBlock(pos: PIXI.Point): Block | undefined {
