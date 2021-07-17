@@ -1,12 +1,15 @@
 import * as PIXI from "pixi.js";
 import inputManager from "../common/inputManager";
-import { blockSize, playerSize, playerSpeed } from "../common/constants";
+import { blockSize, gravity, jumpStrenght, maxFallSpeed, playerSize, playerSpeed } from "../common/constants";
 import World from "../world/world";
+import Chunk from "../world/chunk";
 
 export default class Player extends PIXI.Sprite {
-	private pos: PIXI.Point = new PIXI.Point(0, 0);
+	pos: PIXI.Point = new PIXI.Point(0, 15);
 
 	private world: World;
+
+	readonly speed = new PIXI.Point(0, 0);
 
 	actualChunk = 0;
 
@@ -25,31 +28,85 @@ export default class Player extends PIXI.Sprite {
 		inputManager.on(" ", () => this.handleSpace());
 	}
 
-	private handleSpace() {}
+	private handleSpace() {
+		if (this.speed.y === 0) this.jump();
+	}
 
 	private jump() {
+		this.speed.y = jumpStrenght;
+
 		this.emit("jump");
 	}
 
 	tick(delta: number) {
-		let moveR = false;
-		let moveL = false;
-		if (inputManager.isPressed("d")) {
-			this.pos.x += playerSpeed * delta;
-			moveR = true;
-		}
-		if (inputManager.isPressed("q")) {
-			this.pos.x -= playerSpeed * delta;
-			moveL = true;
+		if (inputManager.isPressed("d")) this.speed.x += playerSpeed;
+
+		if (inputManager.isPressed("q")) this.speed.x -= playerSpeed;
+
+		if (inputManager.isPressed("t")) this.pos.set(0, 10);
+
+		// if (inputManager.isPressed(" ")) {
+		// 	this.speed.y += playerSpeed;
+		// }
+		// if (inputManager.isPressed("Shift")) {
+		// 	this.speed.y -= playerSpeed;
+		// }
+
+		// gravity
+		this.speed.y += Math.max(-gravity * delta, -maxFallSpeed);
+
+		this.calcCollision(delta);
+
+		if (!this.speed.equals({ x: 0, y: 0 })) {
+			this.move(delta);
+			this.emit("move");
 		}
 
 		this.actualChunk = Math.floor(this.pos.x / 16);
 
 		this.x = this.pos.x * blockSize.width;
 		this.y = this.pos.y * -blockSize.height;
+	}
 
-		if (moveR) this.emit("movedRight");
-		if (moveL) this.emit("movedLeft");
-		if ((moveR || moveL) && moveR !== moveL) this.emit("moved");
+	private calcCollision(delta: number) {
+		let testPos = this.pos.clone();
+		testPos.x += this.speed.x * delta;
+		testPos.y += this.speed.y * delta;
+
+		this.world.chunks.forEach(chunk => {
+			chunk.blocks.forEach(block => {
+				let blockRect = new PIXI.Rectangle(block.pos.x + chunk.pos * 16, block.pos.y, 1, 1);
+
+				// colision X
+				if (this.testCollisionAABB(new PIXI.Rectangle(testPos.x, this.pos.y, 1, 2), blockRect)) {
+					let rightToLeft = Math.abs(this.pos.x + this.width / blockSize.width - blockRect.x) / delta;
+					let leftToRight = (blockRect.x + blockRect.width - this.pos.x) / delta;
+
+					this.speed.x = Math.min(rightToLeft, leftToRight);
+				}
+
+				// colision Y
+				if (this.testCollisionAABB(new PIXI.Rectangle(this.pos.x, testPos.y, 1, 2), blockRect)) {
+					let topToBottom = Math.abs(this.pos.y + this.height / blockSize.height - blockRect.y) / delta;
+					let bottomToTop = (blockRect.y + blockRect.height - this.pos.y) / delta;
+
+					this.speed.y = Math.min(topToBottom, bottomToTop);
+				}
+			});
+		});
+	}
+
+	private move(delta: number) {
+		// let chunk = this.world.chunks.get(this.actualChunk) as Chunk;
+
+		this.pos.x += this.speed.x * delta;
+		this.pos.y += this.speed.y * delta;
+
+		this.speed.x = 0;
+		// this.speed.set(0, 0);
+	}
+
+	private testCollisionAABB(rect1: PIXI.Rectangle, rect2: PIXI.Rectangle) {
+		return rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x && rect1.y < rect2.y + rect2.height && rect1.y + rect1.height > rect2.y;
 	}
 }

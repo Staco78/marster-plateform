@@ -1,29 +1,39 @@
 import * as PIXI from "pixi.js";
-import BLock from "../blocks/block";
+import Block from "../blocks/block";
 import { blockSize } from "../common/constants";
 
 export default class Chunk {
-	private blocks = new Map<PIXI.Point, BLock>();
+	readonly blocks = new Map<PIXI.Point, Block>();
 	private container = new PIXI.Container();
 
+	pos: number;
+
 	constructor(container: PIXI.Container, pos: number) {
-		for (let i = 0; i < 16; i++) {
-			this.blocks.set(new PIXI.Point(i, 0), new BLock(i, 0));
-		}
+		this.pos = pos;
 
-        console.log("new chunk " + pos);
-        
-
-		this.draw();
-
-		this.container.position.set(pos * 16 * blockSize.width, pos * blockSize.height);
+		this.container.position.set(pos * 16 * blockSize.width, 0);
 
 		container.addChild(this.container);
 	}
 
 	draw() {
 		this.blocks.forEach(block => {
-			this.container.addChild(block);
+			this.drawOneBlock(block);
 		});
 	}
+
+	drawOneBlock(block: Block) {
+		this.container.addChild(block);
+	}
+
+	setBlock(pos: PIXI.Point, block: Block) {
+		this.blocks.set(pos, block);
+
+		this.drawOneBlock(block);
+	}
+
+	generate() {
+		for (let x = 0; x < 16; x++) for (let y = 0; y < 32; y++) this.setBlock(new PIXI.Point(x, y), new Block(new PIXI.Point(x, y)));
+	}
+
 }

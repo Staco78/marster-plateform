@@ -36,14 +36,19 @@ export default class Game {
 		this.app.stage.addChild(this.staticContainer);
 
 		this.playerCenteredContainer.addChild(this.player);
-		this.world.draw();
 
 		let FPSText = new PIXI.Text("");
 		this.staticContainer.addChild(FPSText);
+		
 
-		let playerChunkText = new PIXI.Text("");
-		playerChunkText.y = 30;
-		this.staticContainer.addChild(playerChunkText);
+		let playerPosText = new PIXI.Text("");
+		playerPosText.y = 30;
+		this.staticContainer.addChild(playerPosText);
+
+		let playerSpeedText = new PIXI.Text("");
+		playerSpeedText.y = 60;
+		this.staticContainer.addChild(playerSpeedText);
+
 
 		this.world.calcRenderDistance();
 
@@ -60,7 +65,8 @@ export default class Game {
 
 			FPSText.text = this.app.ticker.FPS.toFixed();
 
-			playerChunkText.text = this.player.actualChunk.toString();
+			playerPosText.text = `X: ${this.player.pos.x} Y: ${this.player.pos.y}`;
+			playerSpeedText.text = `Speed: X: ${this.player.speed.x} Y: ${this.player.speed.y}`;
 		}, 100);
 	}
 }
