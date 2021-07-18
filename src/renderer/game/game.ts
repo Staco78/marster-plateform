@@ -5,6 +5,9 @@ import Player from "../player/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
 import Generation from "../generation/generation";
+import { negativeModulo } from "../common/utils";
+import Stone from "../blocks/stone";
+import Leaves from "../blocks/leaves";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
 	app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -29,11 +32,11 @@ export default class Game {
 
 		window.onresize = () => appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
 
-		Random.init(Date.now().toString());
-
 		inputManager.init();
 
-		Generation.init();
+		Generation.init(this.world);
+
+		this.world.setBlock(new PIXI.Point(-81, 100), new Leaves());
 
 	}
 
@@ -45,21 +48,22 @@ export default class Game {
 
 		this.playerCenteredContainer.addChild(this.player);
 
-		let FPSText = new PIXI.Text("");
+		let FPSText = new PIXI.Text("", { fontSize: 20 });
 		this.staticContainer.addChild(FPSText);
-		
 
-		let playerPosText = new PIXI.Text("");
-		playerPosText.y = 30;
+		let playerPosText = new PIXI.Text("", { fontSize: 20 });
+		playerPosText.y = 20;
 		this.staticContainer.addChild(playerPosText);
 
-		let playerSpeedText = new PIXI.Text("");
+		let playerChunkPosText = new PIXI.Text("", { fontSize: 20 });
+		playerChunkPosText.y = 40;
+		this.staticContainer.addChild(playerChunkPosText);
+
+		let playerSpeedText = new PIXI.Text("", { fontSize: 20 });
 		playerSpeedText.y = 60;
 		this.staticContainer.addChild(playerSpeedText);
 
-
 		this.world.calcRenderDistance();
-
 
 		// game loop
 		this.app.ticker.add(delta => {
@@ -75,6 +79,7 @@ export default class Game {
 			FPSText.text = this.app.ticker.FPS.toFixed();
 
 			playerPosText.text = `X: ${this.player.pos.x} Y: ${this.player.pos.y}`;
+			playerChunkPosText.text = `Chunk: ${this.player.actualChunk} Relative pos: X: ${negativeModulo(this.player.pos.x)} Y: ${this.player.pos.y}`;
 			playerSpeedText.text = `Speed: X: ${this.player.speed.x} Y: ${this.player.speed.y}`;
 		}, 100);
 	}

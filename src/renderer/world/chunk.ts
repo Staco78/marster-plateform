@@ -28,6 +28,8 @@ export default class Chunk {
 	}
 
 	setBlock(pos: PIXI.Point, block: Block) {
+		if (pos.x < 0 || pos.x > 15 || pos.y < 0) throw new Error("Block out of chunk range");
+		if (Math.trunc(pos.x) !== pos.x || Math.trunc(pos.y) !== pos.y) throw new Error("Block position must be an integer");
 		block.setPos(pos);
 		this.blocks.set(pos, block);
 
@@ -59,7 +61,7 @@ class BlockMap {
 		return this.data.get(this.hash(key));
 	}
 
-	forEach(callback: (block: Block) => void, thisArg?: any){
+	forEach(callback: (block: Block) => void, thisArg?: any) {
 		this.data.forEach(callback, thisArg);
 	}
 }

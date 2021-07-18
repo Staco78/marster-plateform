@@ -13,4 +13,4 @@ export const renderDistance = 2;
 export const gravity = 0.05;
 export const maxFallSpeed = 0.5;
 export const jumpStrenght = 0.8;
-export const collisionDetectionDistance = 1;
+export const collisionDetectionDistance = 2;

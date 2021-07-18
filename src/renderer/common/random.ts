@@ -1,13 +1,19 @@
 import * as randomSeed from "random-seed";
 
 export default class Random {
-	private static generator: randomSeed.RandomSeed = randomSeed.create();
+	private generator: randomSeed.RandomSeed;
+	private seed: number | undefined;
 
-	static init(seed: string) {
-		this.generator = randomSeed.create(seed);
+	constructor(seed?: number) {
+		this.seed = seed;
+		this.generator = randomSeed.create(this.seed?.toString());
 	}
 
-	static random() {
+	random() {
 		return this.generator.random();
+	}
+
+	getSeed(){
+		return this.seed;
 	}
 }
