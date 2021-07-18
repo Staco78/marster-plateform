@@ -4,15 +4,15 @@ import { blockSize, collisionDetectionDistance, gravity, jumpStrenght, maxFallSp
 import World from "../world/world";
 
 export default class Player extends PIXI.Sprite {
-	pos: PIXI.Point = new PIXI.Point(0, 60);
+	pos: PIXI.Point = new PIXI.Point(-2000, 60);
 
 	private world: World;
 
-	private isNoClip = true;
+	private isNoClip = false;
 
 	readonly speed = new PIXI.Point(0, 0);
 
-	actualChunk = 0;
+	actualChunk = Math.floor(this.pos.x / 16);
 
 	constructor(world: World) {
 		super(PIXI.utils.TextureCache["player"]);

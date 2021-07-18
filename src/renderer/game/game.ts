@@ -36,8 +36,6 @@ export default class Game {
 
 		Generation.init(this.world);
 
-		this.world.setBlock(new PIXI.Point(-81, 100), new Leaves());
-
 	}
 
 	start() {
