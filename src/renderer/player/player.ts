@@ -4,7 +4,7 @@ import { blockSize, collisionDetectionDistance, gravity, jumpStrenght, maxFallSp
 import World from "../world/world";
 
 export default class Player extends PIXI.Sprite {
-	pos: PIXI.Point = new PIXI.Point(-2000, 60);
+	pos: PIXI.Point = new PIXI.Point(0, 60);
 
 	private world: World;
 

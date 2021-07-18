@@ -1,15 +1,16 @@
 import Chunk from "./chunk";
 
 import * as PIXI from "pixi.js";
+import World from "./world";
 
 export default class ChunksManager {
-    private chunksContainer: PIXI.Container;
+    private world: World;
 
     private readonly chunks = new Map<number, Chunk>();
     private readonly unloadedChunks = new Map<number, Chunk>();
 
-    constructor(container: PIXI.Container) {
-        this.chunksContainer = container;
+    constructor(world: World) {
+        this.world = world;
     }
 
     get(pos: number): Chunk {
@@ -18,7 +19,7 @@ export default class ChunksManager {
             return this.returnChunk(this.loadChunk(pos));
         }
 
-        let chunk = new Chunk(pos);
+        let chunk = new Chunk(pos, this.world);
         this.chunks.set(pos, chunk);
         chunk.generate();
 
@@ -38,9 +39,9 @@ export default class ChunksManager {
     // add the chunk to the global container if don't there already
     private returnChunk(chunk: Chunk): Chunk {
         try {
-            this.chunksContainer.getChildIndex(chunk.container);
+            this.world.container.getChildIndex(chunk.container);
         } catch (e) {
-            this.chunksContainer.addChild(chunk.container);
+            this.world.container.addChild(chunk.container);
         }
 
         return chunk;
@@ -57,7 +58,7 @@ export default class ChunksManager {
 
         this.unloadedChunks.set(pos, chunk);
 
-        this.chunksContainer.removeChild(chunk.container);
+        this.world.container.removeChild(chunk.container);
 
         return chunk;
     }

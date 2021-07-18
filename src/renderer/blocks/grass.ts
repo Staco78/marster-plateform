@@ -1,7 +1,10 @@
+import World from "../world/world";
 import Block from "./block";
 
+import * as PIXI from "pixi.js"
+
 export default class Grass extends Block {
-	constructor() {
-		super("grass");
+	constructor(world: World, pos: PIXI.Point) {
+		super(world, pos, "grass");
 	}
 }
