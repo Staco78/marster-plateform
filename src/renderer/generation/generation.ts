@@ -8,74 +8,23 @@ import Random from "../common/random";
 import Chunk from "../world/chunk";
 import World from "../world/world";
 
-class Simple1DNoise {
-    private readonly MAX_VERTICES = 256;
-    private readonly MAX_VERTICES_MASK = this.MAX_VERTICES - 1;
-    private amplitude = 1;
-    private scale = 1;
-
-    private readonly r: number[] = [];
-
-    private randomGenerator;
-
-    constructor(seed: number) {
-        this.randomGenerator = new Random(seed);
-
-        for (var i = 0; i < this.MAX_VERTICES; ++i) {
-            this.r.push(this.randomGenerator.random());
-        }
-    }
-
-    getVal(x: number) {
-        var scaledX = x * this.scale;
-        var xFloor = Math.floor(scaledX);
-        var t = scaledX - xFloor;
-        var tRemapSmoothstep = t * t * (3 - 2 * t);
-
-        var xMin = xFloor % this.MAX_VERTICES_MASK;
-        var xMax = (xMin + 1) % this.MAX_VERTICES_MASK;
-
-        var y = this.lerp(this.r[xMin], this.r[xMax], tRemapSmoothstep);
-
-        return y * this.amplitude;
-    }
-
-    setAmplitude(newAmplitude: number) {
-        this.amplitude = newAmplitude;
-    }
-    setScale(newScale: number) {
-        this.scale = newScale;
-    }
-
-    getSeed() {
-        return this.randomGenerator.getSeed() as number;
-    }
-
-    /**
-     * Linear interpolation function.
-     * @param a The lower integer value
-     * @param b The upper integer value
-     * @param t The value between the two
-     * @returns {number}
-     */
-    private lerp(a: number, b: number, t: number): number {
-        return a * (1 - t) + b * t;
-    }
-}
-
 export default class Generation {
-    private static heightMapNoise: Simple1DNoise;
-    private static decorationMapNoise: Simple1DNoise;
-    private static world: World;
+    private heightMapNoise: Simple1DNoise;
+    private decorationMapNoise: Simple1DNoise;
+    private world: World;
 
-    static init(world: World) {
+    seed: string;
+
+    constructor(world: World, seed: string) {
         this.world = world;
 
-        this.heightMapNoise = new Simple1DNoise(Date.now());
-        this.decorationMapNoise = new Simple1DNoise(this.heightMapNoise.getSeed() & 255);
+        this.seed = seed;
+
+        this.heightMapNoise = new Simple1DNoise(this.seed);
+        this.decorationMapNoise = new Simple1DNoise(this.seed + "tree");
     }
 
-    static generateChunk(chunk: Chunk) {
+    generateChunk(chunk: Chunk) {
         for (let x = 0; x < 16; x++) {
             let calcBlockPos = (chunk.pos * 16 + x) / 50;
 
@@ -111,7 +60,7 @@ export default class Generation {
         }
     }
 
-    private static spawnTree(chunk: Chunk, x: number, y: number) {
+    private spawnTree(chunk: Chunk, x: number, y: number) {
         chunk.setBlock(new PIXI.Point(x, y), Wood);
         chunk.setBlock(new PIXI.Point(x, y + 1), Wood);
         chunk.setBlock(new PIXI.Point(x, y + 2), Wood);
@@ -122,5 +71,60 @@ export default class Generation {
                     if (_x >= 0 && _x < 16) chunk.setBlock(new PIXI.Point(_x, _y), Leaves);
                     else this.world.setBlock(new PIXI.Point(chunk.pos * 16 + _x, _y), Leaves);
         }
+    }
+}
+
+class Simple1DNoise {
+    private readonly MAX_VERTICES = 256;
+    private readonly MAX_VERTICES_MASK = this.MAX_VERTICES - 1;
+    private amplitude = 1;
+    private scale = 1;
+
+    private readonly r: number[] = [];
+
+    private randomGenerator;
+
+    constructor(seed: string) {
+        this.randomGenerator = new Random(seed);
+
+        for (var i = 0; i < this.MAX_VERTICES; ++i) {
+            this.r.push(this.randomGenerator.random());
+        }
+    }
+
+    getVal(x: number) {
+        var scaledX = x * this.scale;
+        var xFloor = Math.floor(scaledX);
+        var t = scaledX - xFloor;
+        var tRemapSmoothstep = t * t * (3 - 2 * t);
+
+        var xMin = xFloor % this.MAX_VERTICES_MASK;
+        var xMax = (xMin + 1) % this.MAX_VERTICES_MASK;
+
+        var y = this.lerp(this.r[xMin], this.r[xMax], tRemapSmoothstep);
+
+        return y * this.amplitude;
+    }
+
+    setAmplitude(newAmplitude: number) {
+        this.amplitude = newAmplitude;
+    }
+    setScale(newScale: number) {
+        this.scale = newScale;
+    }
+
+    getSeed() {
+        return this.randomGenerator.getSeed() as string;
+    }
+
+    /**
+     * Linear interpolation function.
+     * @param a The lower integer value
+     * @param b The upper integer value
+     * @param t The value between the two
+     * @returns {number}
+     */
+    private lerp(a: number, b: number, t: number): number {
+        return a * (1 - t) + b * t;
     }
 }

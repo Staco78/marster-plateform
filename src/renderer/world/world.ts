@@ -4,6 +4,8 @@ import { renderDistance } from "../common/constants";
 import { negativeModulo } from "../common/utils";
 import Player from "../player/player";
 import ChunksManager from "./chunksManager";
+import Generation from "../generation/generation";
+import Game from "../game/game";
 
 export default class World {
     player: Player = new Player(this);
@@ -11,10 +13,14 @@ export default class World {
     readonly container: PIXI.Container;
     readonly chunks;
 
-    constructor(stage: PIXI.Container) {
-        this.container = stage;
+    generator: Generation;
 
-        this.chunks = new ChunksManager(this);
+    constructor(container: PIXI.Container, game: Game, seed: string) {
+        this.container = container;
+
+        this.chunks = new ChunksManager(game);
+
+        this.generator = new Generation(this, seed);
 
         this.player.on("move", () => this.handlePlayerMoved());
     }
@@ -61,10 +67,11 @@ export default class World {
         let blockPos = new PIXI.Point(negativeModulo(pos.x), pos.y);
 
         let chunk = this.chunks.get(chunkPos);
-        if (!chunk) throw new Error("Block not found");
 
-        if (!chunk.blocks.has(blockPos)) throw new Error("Block not found");
+        if (!chunk) throw new Error(`Block not found (${pos.x}:${pos.y})`);
 
-        chunk.blocks.delete(blockPos);
+        if (!chunk.blocks.has(blockPos)) throw new Error(`Block not found (${pos.x}:${pos.y})`);
+
+        chunk.deleteBlock(blockPos);
     }
 }

@@ -1,13 +1,10 @@
 import * as PIXI from "pixi.js";
 
-import Random from "../common/random";
 import Player from "../player/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
-import Generation from "../generation/generation";
 import { negativeModulo } from "../common/utils";
-import Grass from "../blocks/grass";
-import Block from "../blocks/block";
+import SaveManager from "../common/saveManager";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -20,13 +17,21 @@ export default class Game {
     private playerCenteredContainer = new PIXI.Container();
     private staticContainer = new PIXI.Container();
 
-    private world: World = new World(this.playerCenteredContainer);
-    private player: Player = this.world.player;
+    world: World;
+    private player: Player;
 
-    constructor(app: PIXI.Application) {
+    name: string;
+
+    constructor(app: PIXI.Application, name: string, seed: string) {
         this.app = app;
         this.app.stage.sortableChildren = true;
         this.playerCenteredContainer.sortableChildren = true;
+
+        this.name = name;
+
+        this.world = new World(this.playerCenteredContainer, this, seed);
+
+        this.player = this.world.player;
 
         appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
 
@@ -35,7 +40,9 @@ export default class Game {
 
         inputManager.init();
 
-        Generation.init(this.world);
+        inputManager.on("Escape", () => {
+            SaveManager.saveGame(this);
+        });
     }
 
     start() {
@@ -82,5 +89,12 @@ export default class Game {
             )} Y: ${this.player.pos.y}`;
             playerSpeedText.text = `Speed: X: ${this.player.speed.x} Y: ${this.player.speed.y}`;
         }, 100);
+    }
+
+    getMetaData(): GameMetaData {
+        return {
+            name: this.name,
+            seed: this.world.generator.seed.toString(),
+        };
     }
 }

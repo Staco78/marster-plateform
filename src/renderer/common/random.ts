@@ -2,11 +2,11 @@ import * as randomSeed from "random-seed";
 
 export default class Random {
 	private generator: randomSeed.RandomSeed;
-	private seed: number | undefined;
+	private seed: string | undefined;
 
-	constructor(seed?: number) {
+	constructor(seed?: string) {
 		this.seed = seed;
-		this.generator = randomSeed.create(this.seed?.toString());
+		this.generator = randomSeed.create(this.seed);
 	}
 
 	random() {

@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import Block from "../blocks/block";
 import { blockSize } from "../common/constants";
-import Generation from "../generation/generation";
+import { getBlockClassFromName } from "../common/utils";
 import World from "./world";
 
 export default class Chunk {
@@ -18,6 +18,21 @@ export default class Chunk {
         this.world = world;
 
         this.container.position.set(pos * 16 * blockSize.width, 0);
+    }
+
+    fromSaveString(data: string) {
+        const blocksData = data.split(";");
+
+        blocksData.forEach(blockData => {
+            if (blockData) {
+                const splitedData = blockData.split(",");
+
+                this.setBlock(
+                    new PIXI.Point(parseInt(splitedData[1]), parseInt(splitedData[2])),
+                    getBlockClassFromName(splitedData[0] as BlockName)
+                );
+            }
+        });
     }
 
     draw() {
@@ -38,7 +53,7 @@ export default class Chunk {
         if (block.name === "Block") throw new Error("Cannot directly instantiate Block");
 
         // @ts-ignore
-        let _block = new block(this.world, pos);
+        let _block = new block(this, pos);
 
         if (this.blocks.has(pos)) {
             this.blocks.delete(pos);
@@ -49,8 +64,24 @@ export default class Chunk {
         this.drawOneBlock(_block);
     }
 
+    deleteBlock(pos: PIXI.Point) {
+        if (!this.blocks.has(pos)) throw new Error("Block not found");
+
+        this.blocks.delete(pos);
+    }
+
     generate() {
-        Generation.generateChunk(this);
+        this.world.generator.generateChunk(this);
+    }
+
+    getDataForSave(): string {
+        let result = "";
+
+        this.blocks.forEach(block => {
+            result += `${block.name},${block.pos.x},${block.pos.y};`;
+        });
+
+        return result;
     }
 }
 

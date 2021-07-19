@@ -1,18 +1,20 @@
 import * as PIXI from "pixi.js";
 import { blockSize } from "../common/constants";
-import World from "../world/world";
+import Chunk from "../world/chunk";
 
 export default class Block extends PIXI.Sprite {
-    pos: PIXI.Point = new PIXI.Point();
+    pos: PIXI.Point;
 
-    private world: World;
+    private chunk: Chunk;
 
-    constructor(world: World, pos: PIXI.Point, name: string) {
+    name: string;
+
+    constructor(chunk: Chunk, pos: PIXI.Point, name: BlockName) {
         super(PIXI.utils.TextureCache[name]);
 
-        this.pos;
+        this.chunk = chunk;
 
-        this.world = world;
+        this.name = name;
 
         this.anchor.set(0, 1);
 
@@ -30,6 +32,8 @@ export default class Block extends PIXI.Sprite {
     }
 
     delete() {
-        this.world.deleteBlock(this.pos);
+        this.chunk.deleteBlock(this.pos);
     }
+
+   
 }

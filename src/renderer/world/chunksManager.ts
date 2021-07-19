@@ -1,16 +1,16 @@
 import Chunk from "./chunk";
 
-import * as PIXI from "pixi.js";
-import World from "./world";
+import SaveManager from "../common/saveManager";
+import Game from "../game/game";
 
 export default class ChunksManager {
-    private world: World;
+    private game: Game;
 
     private readonly chunks = new Map<number, Chunk>();
     private readonly unloadedChunks = new Map<number, Chunk>();
 
-    constructor(world: World) {
-        this.world = world;
+    constructor(game: Game) {
+        this.game = game;
     }
 
     get(pos: number): Chunk {
@@ -19,7 +19,15 @@ export default class ChunksManager {
             return this.returnChunk(this.loadChunk(pos));
         }
 
-        let chunk = new Chunk(pos, this.world);
+        let saveChunk = SaveManager.loadChunk(this.game.name, pos);
+        if (saveChunk) {
+            let chunk = new Chunk(pos, this.game.world);
+            this.chunks.set(pos, chunk);
+            chunk.fromSaveString(saveChunk);
+            return this.returnChunk(chunk);
+        }
+
+        let chunk = new Chunk(pos, this.game.world);
         this.chunks.set(pos, chunk);
         chunk.generate();
 
@@ -39,9 +47,9 @@ export default class ChunksManager {
     // add the chunk to the global container if don't there already
     private returnChunk(chunk: Chunk): Chunk {
         try {
-            this.world.container.getChildIndex(chunk.container);
+            this.game.world.container.getChildIndex(chunk.container);
         } catch (e) {
-            this.world.container.addChild(chunk.container);
+            this.game.world.container.addChild(chunk.container);
         }
 
         return chunk;
@@ -58,12 +66,17 @@ export default class ChunksManager {
 
         this.unloadedChunks.set(pos, chunk);
 
-        this.world.container.removeChild(chunk.container);
+        this.game.world.container.removeChild(chunk.container);
 
         return chunk;
     }
 
     forEach(callback: (chunk: Chunk, pos: number) => void, thisArg?: any) {
         this.chunks.forEach(callback, thisArg);
+    }
+
+    forEachAll(callback: (chunk: Chunk, pos: number) => void, thisArg?: any){
+        this.chunks.forEach(callback, thisArg);
+        this.unloadedChunks.forEach(callback, thisArg);
     }
 }
