@@ -86,6 +86,8 @@ function saveMetaData(folder: string, metaData: GameMetaData) {
 function getGameMetaData(folder: string): GameMetaData {
     let data = JSON.parse(fs.readFileSync(folder + "\\meta.json").toString());
 
+    data.lastLoadedTimeStamp = new Date(data.lastLoadedTimeStamp);
+
     return data;
 }
 
@@ -97,7 +99,6 @@ function saveWorld(world: World, gameFolder: string) {
     world.chunks.forEachAll(chunk => {
         saveChunk(chunk, worldFolder);
     });
-
 }
 
 function saveChunk(chunk: Chunk, worldFolder: string) {

@@ -5,16 +5,143 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         * {
+            margin: 0;
             padding: 0;
-            margin: 0
+            color: white;
+            font-family: "font";
+        }
+
+        *:not(input[text]) {
+            user-select: none;
+
+        }
+
+        #play_menu_header {
+            text-align: center;
+            margin: 10px;
+        }
+
+        #play_menu_header * {
+            margin: 5px;
+        }
+
+        #play_menu_header p {
+            font-size: 40px;
+        }
+
+        #play_menu_games_list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .play_menu_game_element {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100px;
+            width: 500px;
+            border: 1px solid black;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .play_menu_game_name_text {
+            margin-bottom: 15px;
+        }
+
+        .button {
+            width: 150px;
+            height: 35px;
+            font-size: 20px;
+            cursor: pointer;
+            border: 0;
+            background-color: #800080;
+        }
+
+        .button:hover {
+            background-color: #ff00ff;
+        }
+
+        .big_button {
+            width: 400px;
+            height: 70px;
+            font-size: 50px
+        }
+
+        .textInput {
+            padding: 2px;
+            padding-left: 5px;
+            width: 350px;
+            height: 50px;
+            font-size: 30px;
+            cursor: text;
+            border: 0;
+            background-color: #800080;
+        }
+
+        .textInput:hover {
+            background-color: #ff00ff;
+        }
+
+        .textInput:focus {
+            outline: none;
+        }
+
+        .center_aligned {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        .center_aligned * {
+            margin: 5px;
+        }
+
+        #new_world_input_div {
+            margin: 50px;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
 
 <body>
     <div id="container"></div>
+
+    <div id="menu_container" style="position: fixed; pointer-events: none;">
+        <div id="play_menu" style="display: none; pointer-events: auto;">
+            <div id="play_menu_header">
+                <p>WORLD LIST</p>
+                <input type="button" value="NEW WORLD" class="button" id="new_world_button">
+            </div>
+            <div id="play_menu_games_list">
+
+            </div>
+        </div>
+        <div id="new_world_menu" style="display: none; height: 100%; pointer-events: auto;">
+            <div class="center_aligned" style="height: 100%;">
+                <h1 style="font-size: 45px; margin-top: 20px;">CREATE WORLD</h1>
+                <div style="display: flex; height: 100%; flex-direction: column; justify-content: space-around;">
+                    <div id="new_world_input_div">
+                        <input type="text" placeholder="WORLD NAME" class="textInput" id="new_world_name_input">
+                        <input type="text" placeholder="WORLD SEED" class="textInput" id="new_world_seed_input">
+                    </div>
+                    <div>
+                        <input type="button" value="NEW WORLD" class="button big_button"
+                            id="new_world_create_world_button">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

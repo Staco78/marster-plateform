@@ -33,10 +33,10 @@ export default class Game {
 
         this.player = this.world.player;
 
-        appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
-
         window.onresize = () =>
             appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
+
+        window.onresize(null as any);
 
         inputManager.init();
 
@@ -46,8 +46,6 @@ export default class Game {
     }
 
     start() {
-        this.app.renderer.backgroundColor = 0x0000ff;
-
         this.app.stage.addChild(this.playerCenteredContainer);
         this.app.stage.addChild(this.staticContainer);
 
@@ -95,6 +93,7 @@ export default class Game {
         return {
             name: this.name,
             seed: this.world.generator.seed.toString(),
+            lastLoadedTimeStamp: new Date(),
         };
     }
 }
