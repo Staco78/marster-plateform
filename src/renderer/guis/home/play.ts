@@ -1,8 +1,7 @@
-import SaveManager from "../../common/saveManager";
 import NewWorldMenu from "./newWorld";
 
 export default class Play {
-    private static game_list: GameMetaData[];
+    // private static game_list: GameMetaData[];
 
     static onplay = (name: string, seed?: string) => {};
 
@@ -20,21 +19,19 @@ export default class Play {
     }
 
     static generate() {
-        this.game_list = SaveManager.getGameList();
+        // let list = document.getElementById("play_menu_games_list");
 
-        let list = document.getElementById("play_menu_games_list");
+        // if (!list) throw new Error("Element not found");
 
-        if (!list) throw new Error("Element not found");
+        // this.game_list.sort((a, b) => {
+        //     if (a.lastLoadedTimeStamp < b.lastLoadedTimeStamp) return 1;
+        //     if (a.lastLoadedTimeStamp > b.lastLoadedTimeStamp) return -1;
+        //     return 0;
+        // });
 
-        this.game_list.sort((a, b) => {
-            if (a.lastLoadedTimeStamp < b.lastLoadedTimeStamp) return 1;
-            if (a.lastLoadedTimeStamp > b.lastLoadedTimeStamp) return -1;
-            return 0;
-        });
-
-        this.game_list.forEach(gameData => {
-            list?.appendChild(this.generateGameRow(gameData));
-        });
+        // this.game_list.forEach(gameData => {
+        //     list?.appendChild(this.generateGameRow(gameData));
+        // });
     }
 
     private static generateGameRow(gameMetaData: GameMetaData): HTMLElement {

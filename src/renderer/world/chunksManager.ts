@@ -1,47 +1,27 @@
 import Chunk from "./chunk";
 
-import SaveManager from "../common/saveManager";
 import Game from "../game/game";
 
 export default class ChunksManager {
     private game: Game;
+    private toShow: number[] = [];
 
     private readonly chunks = new Map<number, Chunk>();
-    private readonly unloadedChunks = new Map<number, Chunk>();
 
     constructor(game: Game) {
         this.game = game;
+
+        game.multiplayerConnection.on("chunk", (data: Receive.Chunk) => {
+            this.addChunkFromData(data.data, data.pos);
+        });
     }
 
-    get(pos: number): Chunk {
+    get(pos: number): Chunk | undefined {
         if (this.chunks.has(pos)) return this.returnChunk(this.chunks.get(pos) as Chunk);
-        if (this.unloadedChunks.has(pos)) {
-            return this.returnChunk(this.loadChunk(pos));
-        }
 
-        let saveChunk = SaveManager.loadChunk(this.game.name, pos);
-        if (saveChunk) {
-            let chunk = new Chunk(pos, this.game.world);
-            this.chunks.set(pos, chunk);
-            chunk.fromSaveString(saveChunk);
-            return this.returnChunk(chunk);
-        }
+        this.toShow.push(pos);
 
-        let chunk = new Chunk(pos, this.game.world);
-        this.chunks.set(pos, chunk);
-        chunk.generate();
-
-        return this.returnChunk(this.chunks.get(pos) as Chunk);
-    }
-
-    private loadChunk(pos: number): Chunk {
-        let chunk = this.unloadedChunks.get(pos) as Chunk;
-
-        this.unloadedChunks.delete(pos);
-
-        this.chunks.set(pos, chunk);
-
-        return chunk;
+        return undefined;
     }
 
     // add the chunk to the global container if don't there already
@@ -55,16 +35,33 @@ export default class ChunksManager {
         return chunk;
     }
 
-    unload(pos: number) {
-        if (this.unloadedChunks.has(pos)) throw new Error("Chunk already unloaded");
+    private addChunkFromData(data: string, pos: number) {
+        let chunk = new Chunk(pos, this.game.world);
+        chunk.fromSaveString(data);
+        this.chunks.set(pos, chunk);
 
+        console.log("add chunk", pos, data.length);
+        
+
+        return this.returnChunk(chunk);
+
+        const toShowPosIndex = this.toShow.findIndex(p => p === pos);
+
+        if (toShowPosIndex !== -1) {
+            this.returnChunk(chunk);
+            this.toShow.splice(toShowPosIndex);
+        }
+    }
+
+    unload(pos: number) {
         let chunk = this.chunks.get(pos);
 
         if (!chunk) throw new Error("Chunk doesn't exist");
 
-        this.chunks.delete(pos);
+        console.log("delete chunk", pos);
+        
 
-        this.unloadedChunks.set(pos, chunk);
+        this.chunks.delete(pos);
 
         this.game.world.container.removeChild(chunk.container);
 
@@ -73,10 +70,5 @@ export default class ChunksManager {
 
     forEach(callback: (chunk: Chunk, pos: number) => void, thisArg?: any) {
         this.chunks.forEach(callback, thisArg);
-    }
-
-    forEachAll(callback: (chunk: Chunk, pos: number) => void, thisArg?: any){
-        this.chunks.forEach(callback, thisArg);
-        this.unloadedChunks.forEach(callback, thisArg);
     }
 }

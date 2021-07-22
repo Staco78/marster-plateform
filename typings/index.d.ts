@@ -1,3 +1,6 @@
+/// <reference path="mutiplayer.d.ts" />
+
+
 interface GameMetaData {
     name: string;
     seed: string;
@@ -5,3 +8,4 @@ interface GameMetaData {
 }
 
 type BlockName = "dirt" | "grass" | "stone" | "wood" | "leaves";
+

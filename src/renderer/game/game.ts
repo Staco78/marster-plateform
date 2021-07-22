@@ -4,7 +4,7 @@ import Player from "../player/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
 import { negativeModulo } from "../common/utils";
-import SaveManager from "../common/saveManager";
+import MutliplayerConnection from "../multiplayer/connection";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -16,6 +16,8 @@ export default class Game {
 
     private playerCenteredContainer = new PIXI.Container();
     private staticContainer = new PIXI.Container();
+
+    multiplayerConnection = new MutliplayerConnection();
 
     world: World;
     private player: Player;
@@ -37,12 +39,6 @@ export default class Game {
             appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
 
         window.onresize(null as any);
-
-        inputManager.init();
-
-        inputManager.on("Escape", () => {
-            SaveManager.saveGame(this);
-        });
     }
 
     start() {
@@ -66,11 +62,13 @@ export default class Game {
         playerSpeedText.y = 60;
         this.staticContainer.addChild(playerSpeedText);
 
+        inputManager.init();
+
         this.world.calcRenderDistance();
 
         // game loop
         this.app.ticker.add(delta => {
-            this.player.tick(delta);
+            this.player.tick();
 
             this.playerCenteredContainer.x = -this.player.x;
             this.playerCenteredContainer.y = -this.player.y;

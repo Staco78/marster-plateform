@@ -9,7 +9,7 @@ playerSize.height *= zoomFactor;
 playerSize.width *= zoomFactor;
 
 export const playerSpeed = 0.6;
-export const renderDistance = 2;
+export const renderDistance = 3;
 export const gravity = 0.05;
 export const maxFallSpeed = 2;
 export const jumpStrenght = 0.8;

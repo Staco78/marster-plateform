@@ -8,19 +8,25 @@ import Generation from "../generation/generation";
 import Game from "../game/game";
 
 export default class World {
-    player: Player = new Player(this);
+    player: Player;
 
     readonly container: PIXI.Container;
     readonly chunks;
+
+    readonly game: Game;
 
     generator: Generation;
 
     constructor(container: PIXI.Container, game: Game, seed: string) {
         this.container = container;
 
+        this.game = game;
+
         this.chunks = new ChunksManager(game);
 
         this.generator = new Generation(this, seed);
+
+        this.player = new Player(this);
 
         this.player.on("move", () => this.handlePlayerMoved());
     }
@@ -35,7 +41,10 @@ export default class World {
         }
 
         this.chunks.forEach((chunk, pos) => {
-            if (pos < this.player.actualChunk - renderDistance || pos > this.player.actualChunk + renderDistance) {
+            if (
+                pos < this.player.actualChunk - renderDistance ||
+                pos > this.player.actualChunk + renderDistance
+            ) {
                 this.chunks.unload(pos);
                 this.container.removeChild(chunk.container);
             }
@@ -47,7 +56,7 @@ export default class World {
 
         let blockPos = new PIXI.Point(negativeModulo(pos.x), pos.y);
 
-        this.chunks.get(chunkPos).setBlock(blockPos, block);
+        this.chunks.get(chunkPos)?.setBlock(blockPos, block);
     }
 
     getBlock(pos: PIXI.Point): Block | undefined {
