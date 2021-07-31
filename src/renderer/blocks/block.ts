@@ -32,8 +32,6 @@ export default class Block extends PIXI.Sprite {
     }
 
     delete() {
-        this.chunk.deleteBlock(this.pos);
+        this.chunk.world.game.multiplayerConnection.send("blockBreak", { block: { x: this.pos.x + this.chunk.pos * 16, y: this.pos.y } });
     }
-
-   
 }

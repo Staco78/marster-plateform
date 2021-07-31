@@ -8,7 +8,7 @@ export default class Chunk {
     readonly blocks = new BlockMap();
     readonly container = new PIXI.Container();
 
-    private world: World;
+    readonly world: World;
 
     pos: number;
 

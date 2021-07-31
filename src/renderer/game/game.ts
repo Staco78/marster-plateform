@@ -72,6 +72,7 @@ export default class Game {
 
             this.playerCenteredContainer.x = -this.player.x;
             this.playerCenteredContainer.y = -this.player.y;
+            
         });
 
         setInterval(() => {

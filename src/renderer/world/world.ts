@@ -29,6 +29,10 @@ export default class World {
         this.player = new Player(this);
 
         this.player.on("move", () => this.handlePlayerMoved());
+
+        this.game.multiplayerConnection.on("blockBreak", (data: Receive.BlockBreak) => {
+            this.deleteBlock(new PIXI.Point(data.block.x, data.block.y));
+        });
     }
 
     private handlePlayerMoved() {
@@ -41,10 +45,7 @@ export default class World {
         }
 
         this.chunks.forEach((chunk, pos) => {
-            if (
-                pos < this.player.actualChunk - renderDistance ||
-                pos > this.player.actualChunk + renderDistance
-            ) {
+            if (pos < this.player.actualChunk - renderDistance || pos > this.player.actualChunk + renderDistance) {
                 this.chunks.unload(pos);
                 this.container.removeChild(chunk.container);
             }

@@ -22,7 +22,7 @@ export default class MutliplayerConnection extends EventEmitter {
         });
 
         this.connection.on("open", e => {
-            this.ws.send(JSON.stringify({ action: "login", data: { username: "staco" } }));
+            this.ws.send(JSON.stringify({ action: "login", data: { username: Date.now().toString() } }));
         });
     }
 
