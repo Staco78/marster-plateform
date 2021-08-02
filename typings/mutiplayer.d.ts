@@ -11,7 +11,7 @@ interface MutliplayerConnectionConnection extends EventEmitter {
     on(event: "open", listener: (e: Event) => void): this;
 }
 
-type actionReceive = "pong" | "move" | "chunk" | "blockBreak";
+type actionReceive = "move" | "chunk" | "blockBreak";
 type actionSend = "ping" | "login" | "move" | "jump" | "blockBreak";
 
 declare const enum Direction {
@@ -23,6 +23,13 @@ declare const enum Direction {
 interface ChunkData {
     pos: number;
     data: string;
+}
+
+interface wsMessageData<T = any> {
+    type: 0 | 1 | 2;
+    action?: string;
+    id?: string;
+    data: T;
 }
 
 declare namespace Send {

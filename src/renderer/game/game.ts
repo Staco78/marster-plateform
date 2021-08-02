@@ -35,10 +35,13 @@ export default class Game {
 
         this.player = this.world.player;
 
-        window.onresize = () =>
-            appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
+        window.onresize = () => appResize(this.app, this.playerCenteredContainer, { width: this.player.width, height: this.player.height });
 
         window.onresize(null as any);
+
+        this.multiplayerConnection.sendEmit("ping", {}).then((data: Receive.Pong) => {
+            console.log(data.name);
+        });
     }
 
     start() {
@@ -72,7 +75,6 @@ export default class Game {
 
             this.playerCenteredContainer.x = -this.player.x;
             this.playerCenteredContainer.y = -this.player.y;
-            
         });
 
         setInterval(() => {
@@ -81,9 +83,7 @@ export default class Game {
             FPSText.text = this.app.ticker.FPS.toFixed();
 
             playerPosText.text = `X: ${this.player.pos.x} Y: ${this.player.pos.y}`;
-            playerChunkPosText.text = `Chunk: ${this.player.actualChunk} Relative pos: X: ${negativeModulo(
-                this.player.pos.x
-            )} Y: ${this.player.pos.y}`;
+            playerChunkPosText.text = `Chunk: ${this.player.actualChunk} Relative pos: X: ${negativeModulo(this.player.pos.x)} Y: ${this.player.pos.y}`;
             playerSpeedText.text = `Speed: X: ${this.player.speed.x} Y: ${this.player.speed.y}`;
         }, 100);
     }

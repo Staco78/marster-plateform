@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import inputManager from "../common/inputManager";
 import { blockSize, collisionDetectionDistance, jumpStrenght, playerSize } from "../common/constants";
 import World from "../world/world";
+import WsMessage from "../multiplayer/wsMessage";
 
 export default class Player extends PIXI.Sprite {
     pos: PIXI.Point = new PIXI.Point(0, 60);
@@ -32,8 +33,8 @@ export default class Player extends PIXI.Sprite {
 
         inputManager.on("n", () => (this.isNoClip = !this.isNoClip));
 
-        this.world.game.multiplayerConnection.on("move", (data: Receive.Move) => {
-            this.pos.copyFrom(data.pos);
+        this.world.game.multiplayerConnection.on("move", (data: WsMessage<Receive.Move>) => {
+            this.pos.copyFrom(data.data.pos);
         });
     }
 

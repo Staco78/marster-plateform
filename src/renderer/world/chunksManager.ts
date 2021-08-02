@@ -11,8 +11,8 @@ export default class ChunksManager {
     constructor(game: Game) {
         this.game = game;
 
-        game.multiplayerConnection.on("chunk", (data: Receive.Chunk) => {
-            this.addChunkFromData(data.data, data.pos);
+        game.multiplayerConnection.on("chunk", (data: wsMessageData<Receive.Chunk>) => {
+            this.addChunkFromData(data.data.data, data.data.pos);
         });
     }
 
