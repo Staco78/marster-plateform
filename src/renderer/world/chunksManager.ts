@@ -1,6 +1,7 @@
 import Chunk from "./chunk";
 
 import Game from "../game/game";
+import { WsMessage } from "reply-ws";
 
 export default class ChunksManager {
     private game: Game;
@@ -11,8 +12,8 @@ export default class ChunksManager {
     constructor(game: Game) {
         this.game = game;
 
-        game.multiplayerConnection.on("chunk", (data: wsMessageData<Receive.Chunk>) => {
-            this.addChunkFromData(data.data.data, data.data.pos);
+        game.ws.onAction("chunk", (message: WsMessage<Receive.Chunk>) => {
+            this.addChunkFromData(message.data.data, message.data.pos);
         });
     }
 
@@ -41,7 +42,6 @@ export default class ChunksManager {
         this.chunks.set(pos, chunk);
 
         console.log("add chunk", pos, data.length);
-        
 
         return this.returnChunk(chunk);
 
@@ -59,7 +59,6 @@ export default class ChunksManager {
         if (!chunk) throw new Error("Chunk doesn't exist");
 
         console.log("delete chunk", pos);
-        
 
         this.chunks.delete(pos);
 

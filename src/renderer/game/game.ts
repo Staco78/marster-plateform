@@ -4,7 +4,7 @@ import Player from "../player/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
 import { negativeModulo } from "../common/utils";
-import MutliplayerConnection from "../multiplayer/connection";
+import { WebSocket } from "reply-ws";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -17,7 +17,7 @@ export default class Game {
     private playerCenteredContainer = new PIXI.Container();
     private staticContainer = new PIXI.Container();
 
-    multiplayerConnection = new MutliplayerConnection();
+    ws = new WebSocket("ws://localhost:3497");
 
     world: World;
     private player: Player;
@@ -39,8 +39,10 @@ export default class Game {
 
         window.onresize(null as any);
 
-        this.multiplayerConnection.sendEmit("ping", {}).then((data: Receive.Pong) => {
+        this.ws.send("ping", {}).then((data: Receive.Pong) => {
             console.log(data.name);
+
+            this.ws.send("login", { username: Date.now().toString() });
         });
     }
 

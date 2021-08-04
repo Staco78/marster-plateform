@@ -6,8 +6,7 @@ import Player from "../player/player";
 import ChunksManager from "./chunksManager";
 import Generation from "../generation/generation";
 import Game from "../game/game";
-import WsMessage from "../multiplayer/wsMessage";
-
+import { WsMessage } from "reply-ws";
 export default class World {
     player: Player;
 
@@ -31,7 +30,7 @@ export default class World {
 
         this.player.on("move", () => this.handlePlayerMoved());
 
-        this.game.multiplayerConnection.on("blockBreak", (data: WsMessage<Receive.BlockBreak>) => {
+        this.game.ws.onAction("blockBreak", (data: WsMessage<Receive.BlockBreak>) => {
             this.deleteBlock(new PIXI.Point(data.data.block.x, data.data.block.y));
         });
     }
