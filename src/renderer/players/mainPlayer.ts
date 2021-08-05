@@ -1,45 +1,18 @@
-import * as PIXI from "pixi.js";
-import inputManager from "../common/inputManager";
-import { blockSize, playerSize } from "../common/constants";
+import Player from "./player";
 import World from "../world/world";
+import inputManager from "../common/inputManager";
 import { WsMessage } from "reply-ws";
+import { blockSize } from "../common/constants";
 
-export default class Player extends PIXI.Sprite {
-    pos: PIXI.Point = new PIXI.Point(0, 60);
-
-    private world: World;
-
-    private isNoClip = false;
-
-    readonly speed = new PIXI.Point(0, 0);
-
-    actualChunk = Math.floor(this.pos.x / 16);
-
-    private move = Direction.stop;
-
-    constructor(world: World) {
-        super(PIXI.utils.TextureCache["player"]);
-
-        this.world = world;
-
-        this.zIndex = 10;
-
-        this.anchor.set(0, 1);
-
-        this.width = playerSize.width;
-        this.height = playerSize.height;
-
-        inputManager.on(" ", () => this.handleSpace());
-
-        inputManager.on("n", () => (this.isNoClip = !this.isNoClip));
-
-        this.world.game.ws.onAction("move", (data: WsMessage<Receive.Move>) => {
-            this.pos.copyFrom(data.data.pos);
-        });
+export default class MainPlayer extends Player {
+    constructor(username: string) {
+        super(username);
     }
 
-    private handleSpace() {
-        if (this.speed.y === 0) this.jump();
+    init(world: World) {
+        inputManager.on(" ", () => this.jump());
+
+        super.init(world);
     }
 
     private jump() {

@@ -1,10 +1,11 @@
 import * as PIXI from "pixi.js";
 
-import Player from "../player/player";
+import Player from "../players/player";
 import inputManager from "../common/inputManager";
 import World from "../world/world";
 import { negativeModulo } from "../common/utils";
 import { WebSocket } from "reply-ws";
+import MainPlayer from "../players/mainPlayer";
 
 function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { width: number; height: number }) {
     app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -14,13 +15,13 @@ function appResize(app: PIXI.Application, stage: PIXI.Container, playerSize: { w
 export default class Game {
     private app: PIXI.Application;
 
-    private playerCenteredContainer = new PIXI.Container();
-    private staticContainer = new PIXI.Container();
+    readonly playerCenteredContainer = new PIXI.Container();
+    readonly staticContainer = new PIXI.Container();
 
     ws = new WebSocket("ws://localhost:3497");
 
     world: World;
-    private player: Player;
+    private player: MainPlayer;
 
     name: string;
 
@@ -31,7 +32,9 @@ export default class Game {
 
         this.name = name;
 
-        this.world = new World(this.playerCenteredContainer, this, seed);
+        const playerName = Date();
+
+        this.world = new World(this.playerCenteredContainer, this, seed, new MainPlayer(playerName));
 
         this.player = this.world.player;
 
@@ -39,10 +42,16 @@ export default class Game {
 
         window.onresize(null as any);
 
+        this.ws.on("close", (code, reason) => {
+            alert(`Ws close code ${code} ${reason}`);
+        });
+
+        this.ws.on("error", err => console.log(err));
+
         this.ws.send("ping", {}).then((data: Receive.Pong) => {
             console.log(data.name);
 
-            this.ws.send("login", { username: Date.now().toString() });
+            this.ws.send("login", { username: playerName });
         });
     }
 
@@ -50,7 +59,7 @@ export default class Game {
         this.app.stage.addChild(this.playerCenteredContainer);
         this.app.stage.addChild(this.staticContainer);
 
-        this.playerCenteredContainer.addChild(this.player);
+        // this.playerCenteredContainer.addChild(this.player);
 
         let FPSText = new PIXI.Text("", { fontSize: 20 });
         this.staticContainer.addChild(FPSText);
@@ -84,8 +93,8 @@ export default class Game {
 
             FPSText.text = this.app.ticker.FPS.toFixed();
 
-            playerPosText.text = `X: ${this.player.pos.x} Y: ${this.player.pos.y}`;
-            playerChunkPosText.text = `Chunk: ${this.player.actualChunk} Relative pos: X: ${negativeModulo(this.player.pos.x)} Y: ${this.player.pos.y}`;
+            playerPosText.text = `X: ${this.player.getPos().x} Y: ${this.player.getPos().y}`;
+            playerChunkPosText.text = `Chunk: ${this.player.actualChunk} Relative pos: X: ${negativeModulo(this.player.getPos().x)} Y: ${this.player.getPos().y}`;
             playerSpeedText.text = `Speed: X: ${this.player.speed.x} Y: ${this.player.speed.y}`;
         }, 100);
     }

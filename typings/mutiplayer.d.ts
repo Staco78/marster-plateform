@@ -59,7 +59,8 @@ declare namespace Receive {
         chunks: ChunkData[];
     }
 
-    interface Move {
+    interface PlayerMoved {
+        username: string;
         pos: { x: number; y: number };
     }
 

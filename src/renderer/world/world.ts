@@ -2,22 +2,25 @@ import * as PIXI from "pixi.js";
 import Block from "../blocks/block";
 import { renderDistance } from "../common/constants";
 import { negativeModulo } from "../common/utils";
-import Player from "../player/player";
+import Player from "../players/player";
 import ChunksManager from "./chunksManager";
 import Generation from "../generation/generation";
 import Game from "../game/game";
 import { WsMessage } from "reply-ws";
+import MainPlayer from "../players/mainPlayer";
 export default class World {
-    player: Player;
+    readonly player: MainPlayer;
+
+    readonly othersPlayers = new Map<string, Player>();
 
     readonly container: PIXI.Container;
     readonly chunks;
 
     readonly game: Game;
 
-    generator: Generation;
+    readonly generator: Generation;
 
-    constructor(container: PIXI.Container, game: Game, seed: string) {
+    constructor(container: PIXI.Container, game: Game, seed: string, player: MainPlayer) {
         this.container = container;
 
         this.game = game;
@@ -26,9 +29,23 @@ export default class World {
 
         this.generator = new Generation(this, seed);
 
-        this.player = new Player(this);
+        this.player = player;
+        player.init(this);
+
+        this.game.playerCenteredContainer.addChild(this.player);
 
         this.player.on("move", () => this.handlePlayerMoved());
+
+        this.game.ws.onAction("playerMoved", (message: WsMessage<Receive.PlayerMoved>) => {
+            if (message.data.username !== this.player.username) {
+                if (!this.othersPlayers.get(message.data.username)) {
+                    const player = new Player(message.data.username);
+                    player.init(this);
+                    this.game.playerCenteredContainer.addChild(player);
+                    this.othersPlayers.set(message.data.username, player);
+                }
+            }
+        });
 
         this.game.ws.onAction("blockBreak", (data: WsMessage<Receive.BlockBreak>) => {
             this.deleteBlock(new PIXI.Point(data.data.block.x, data.data.block.y));
